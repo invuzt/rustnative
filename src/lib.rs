@@ -15,7 +15,8 @@ fn android_main(app: AndroidApp) {
                 PollEvent::Main(MainEvent::SaveState { .. }) => {
                     info!("Aplikasi menyimpan state...");
                 }
-                PollEvent::Main(MainEvent::Terminate) => {
+                // Ganti Terminate menjadi Destroy
+                PollEvent::Main(MainEvent::Destroy) => {
                     info!("Aplikasi ditutup.");
                 }
                 _ => {}
