@@ -1,18 +1,12 @@
-use macroquad::prelude::*;
+use android_activity::{AndroidApp, MainEvent, PollEvent};
 
-#[macroquad::main("OdfizApp")]
-async fn main() {
+#[no_mangle]
+fn android_main(app: AndroidApp) {
     loop {
-        // Coba warna hijau dulu (Green) untuk menandai versi baru
-        clear_background(GREEN);
-        
-        draw_text("ODFIZ BERHASIL!", 40.0, 100.0, 50.0, BLACK);
-        draw_text("Tekan layar untuk keluar", 40.0, 160.0, 30.0, DARKGRAY);
-
-        if is_mouse_button_pressed(MouseButton::Left) {
-            break;
-        }
-
-        next_frame().await
+        app.poll_events(Some(std::time::Duration::from_millis(16)), |event| {
+            if let PollEvent::Main(MainEvent::Destroy) = event {
+                return;
+            }
+        });
     }
 }

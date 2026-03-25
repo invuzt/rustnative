@@ -8,12 +8,13 @@ name = "rust_native_app"
 crate-type = ["cdylib"]
 
 [dependencies]
-macroquad = "0.4"
+android-activity = { version = "0.6", features = ["native-activity"] }
+log = "0.4"
+android_logger = "0.13"
 
 [package.metadata.android]
 package = "com.odfiz.rustnative"
 label = "Odfiz Rust App"
-# Pastikan folder assets ada atau hapus baris ini. Kita biarkan karena sudah dibuat di atas.
 assets = "assets"
 build_targets = ["aarch64-linux-android"]
 target_sdk_version = 30
