@@ -1,12 +1,17 @@
-use android_activity::{AndroidApp, MainEvent, PollEvent};
+use macroquad::prelude::*;
 
-#[no_mangle]
-fn android_main(app: AndroidApp) {
+#[macroquad::main("Odfiz")]
+async fn main() {
     loop {
-        app.poll_events(Some(std::time::Duration::from_millis(16)), |event| {
-            if let PollEvent::Main(MainEvent::Destroy) = event {
-                return;
-            }
-        });
+        // Layar Biru agar beda dengan yang tadi hitam
+        clear_background(BLUE);
+
+        draw_text("ODFIZ RUST", 40.0, 100.0, 60.0, WHITE);
+        draw_text("Status: Running!", 40.0, 160.0, 30.0, LIGHTGRAY);
+        
+        // Animasi lingkaran kecil biar kelihatan hidup
+        draw_circle(screen_width() / 2.0, screen_height() / 2.0, 50.0, YELLOW);
+
+        next_frame().await
     }
 }
