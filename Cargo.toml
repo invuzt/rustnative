@@ -16,3 +16,10 @@ package = "com.odfiz.rustnative"
 label = "RustNativeApp"
 assets = "assets"
 build_targets = ["aarch64-linux-android"]
+
+[profile.release]
+opt-level = "z"     # Optimasi ukuran (z = size)
+lto = true          # Link Time Optimization (lebih lambat build, tapi file lebih kecil)
+codegen-units = 1   # Membuat optimasi lebih maksimal
+panic = "abort"     # Menghilangkan stack trace untuk menghemat ruang
+strip = true        # Menghapus simbol debug secara otomatis (STRIP)

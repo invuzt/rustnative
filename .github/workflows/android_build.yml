@@ -16,6 +16,7 @@ jobs:
       with:
         targets: aarch64-linux-android
 
+    # CACHE UNTUK CARGO & BINARY
     - name: Cache Cargo
       uses: actions/cache@v4
       with:
@@ -26,9 +27,16 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
 
     - name: Install cargo-apk
-      run: cargo install cargo-apk || true
+      run: |
+        if ! command -v cargo-apk &> /dev/null; then
+          cargo install cargo-apk
+        else
+          echo "cargo-apk already installed from cache"
+        fi
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
@@ -38,11 +46,11 @@ jobs:
         sdkmanager "ndk;26.1.10909125"
         echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125" >> $GITHUB_ENV
 
-    - name: Build APK
+    - name: Build APK (Release Mode)
       run: cargo apk build --release
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: rust-native-app-apk
+        name: rust-native-app-release
         path: target/release/apk/*.apk
