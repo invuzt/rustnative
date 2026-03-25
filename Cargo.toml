@@ -9,18 +9,16 @@ crate-type = ["cdylib"]
 
 [dependencies]
 macroquad = "0.4"
-# Kita tambahkan ini untuk memastikan sinkronisasi NDK
-ndk-glue = "0.7"
 
 [package.metadata.android]
 package = "com.odfiz.rustnative"
 label = "Odfiz Rust App"
+# Pastikan folder assets ada atau hapus baris ini. Kita biarkan karena sudah dibuat di atas.
 assets = "assets"
 build_targets = ["aarch64-linux-android"]
 target_sdk_version = 30
 min_sdk_version = 21
-# PENTING: Beritahu Android nama library yang harus dimuat
-android_role = "NativeActivity"
+build_tools_version = "30.0.3"
 
 [package.metadata.android.signing.release]
 path = "debug.keystore"
