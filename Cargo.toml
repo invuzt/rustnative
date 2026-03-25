@@ -14,12 +14,13 @@ android_logger = "0.13"
 [package.metadata.android]
 package = "com.odfiz.rustnative"
 label = "RustNativeApp"
-assets = "assets"
 build_targets = ["aarch64-linux-android"]
+target_sdk_version = 34
+min_sdk_version = 21
 
 [profile.release]
-opt-level = "z"     # Optimasi ukuran (z = size)
-lto = true          # Link Time Optimization (lebih lambat build, tapi file lebih kecil)
-codegen-units = 1   # Membuat optimasi lebih maksimal
-panic = "abort"     # Menghilangkan stack trace untuk menghemat ruang
-strip = true        # Menghapus simbol debug secara otomatis (STRIP)
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
