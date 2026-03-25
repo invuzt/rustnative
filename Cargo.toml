@@ -8,8 +8,9 @@ name = "rust_native_app"
 crate-type = ["cdylib"]
 
 [dependencies]
-# Versi ini paling stabil untuk cargo-apk
 macroquad = "0.4"
+# Kita tambahkan miniquad sebagai pendukung grafis Android
+miniquad = "0.4"
 
 [package.metadata.android]
 package = "com.odfiz.rustnative"
@@ -19,6 +20,10 @@ build_targets = ["aarch64-linux-android"]
 target_sdk_version = 30
 min_sdk_version = 21
 build_tools_version = "30.0.3"
+
+# Beritahu Android untuk memuat library ini secara eksplisit
+[[package.metadata.android.library]]
+path = "target/aarch64-linux-android/release/librust_native_app.so"
 
 [package.metadata.android.signing.release]
 path = "debug.keystore"
