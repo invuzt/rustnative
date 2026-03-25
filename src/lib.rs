@@ -1,14 +1,20 @@
-use macroquad::prelude::*;
+use android_activity::{AndroidApp, MainEvent, PollEvent};
+use std::time::Duration;
 
-#[macroquad::main("Odfiz")]
-async fn main() {
+#[no_mangle]
+fn android_main(app: AndroidApp) {
     loop {
-        // Kita pakai warna Ungu (PURPLE) kali ini
-        clear_background(PURPLE);
+        app.poll_events(Some(Duration::from_millis(16)), |event| {
+            match event {
+                PollEvent::Main(MainEvent::Destroy) => {
+                    return;
+                }
+                _ => {}
+            }
+        });
 
-        draw_text("ODFIZ RUST", 40.0, 100.0, 60.0, WHITE);
-        draw_circle(screen_width() / 2.0, screen_height() / 2.0, 40.0, YELLOW);
-
-        next_frame().await
+        // Di sini kita tidak menggambar apa-apa dulu agar TIDAK FC.
+        // Jika ini jalan (layar hitam), berarti HP kamu butuh 
+        // inisialisasi EGL yang sangat spesifik.
     }
 }
