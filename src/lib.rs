@@ -6,15 +6,18 @@ fn android_main(app: android_activity::AndroidApp) {
         android_logger::Config::default().with_max_level(log::LevelFilter::Info),
     );
 
-    let mut options = eframe::NativeOptions::default();
-    // Pada versi ini, android_app dipasang melalui winit_window_builder
-    options.android_app = Some(app);
+    // Inisialisasi options dengan cara langsung
+    let options = eframe::NativeOptions {
+        android_app: Some(app),
+        ..Default::default()
+    };
 
     eframe::run_native(
         "Odfiz App",
         options,
         Box::new(|_cc| {
-            Ok(Box::new(MyApp::default()) as Box<dyn eframe::App>)
+            // Langsung kembalikan Box, jangan dibungkus Ok()
+            Box::new(MyApp::default())
         }),
     ).unwrap();
 }
