@@ -1,6 +1,6 @@
 #![cfg(target_os = "android")]
 mod app_logic;
-mod app_view;
+mod keyboard;
 
 use eframe::egui;
 use std::sync::{Arc, Mutex};
@@ -8,7 +8,6 @@ use android_activity::AndroidApp;
 
 struct OdfizApp {
     state: Arc<Mutex<app_logic::AppState>>,
-    android_app: AndroidApp,
 }
 
 #[no_mangle]
@@ -30,7 +29,6 @@ fn android_main(app: AndroidApp) {
         "Vuzt",
         options,
         Box::new(move |cc| {
-            // Load Font (Wajib karena default_fonts = false)
             let mut fonts = egui::FontDefinitions::default();
             fonts.font_data.insert(
                 "custom_font".to_owned(),
@@ -40,34 +38,48 @@ fn android_main(app: AndroidApp) {
             fonts.families.get_mut(&egui::FontFamily::Monospace).unwrap().push("custom_font".to_owned());
             cc.egui_ctx.set_fonts(fonts);
 
-            Box::new(OdfizApp { 
-                state: state_inner,
-                android_app: app,
-            }) as Box<dyn eframe::App>
+            Box::new(OdfizApp { state: state_inner }) as Box<dyn eframe::App>
         }),
     );
 }
 
 impl eframe::App for OdfizApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        if let Ok(mut state) = self.state.lock() {
-            egui::CentralPanel::default().show(ctx, |ui| {
-                ui.vertical_centered(|ui| {
-                    ui.add_space(50.0);
-                    ui.heading("VUZT KEYBOARD TEST");
-                    
-                    // Tombol Pancingan
-                    if ui.add_sized([200.0, 50.0], egui::Button::new("⌨ OPEN KEYBOARD")).clicked() {
-                        // Meminta android-activity untuk menampilkan soft input
-                        self.android_app.show_soft_input(true);
-                    }
+        let mut state = self.state.lock().unwrap();
 
-                    ui.add_space(20.0);
-                    ui.label("Coba ketik di bawah:");
-                    // TextEdit biasanya otomatis memicu keyboard jika focused
-                    ui.text_edit_singleline(&mut state.app_name);
-                });
+        // Panel Utama
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.vertical_centered(|ui| {
+                ui.add_space(20.0);
+                ui.heading("VUZT NATIVE UI");
+                ui.add_space(10.0);
+                
+                ui.label("Klik teks di bawah untuk edit:");
+                // Gunakan selectable_label sebagai pemicu keyboard
+                let response = ui.add(egui::SelectableLabel::new(state.show_kb, format!("> {}", state.app_name)));
+                if response.clicked() {
+                    state.show_kb = !state.show_kb;
+                }
+                
+                ui.add_space(20.0);
+                ui.label(format!("Status: {}", if state.show_kb { "Keyboard Aktif" } else { "Keyboard Sembunyi" }));
             });
+        });
+
+        // Panel Keyboard (Nempel di bawah)
+        if state.show_kb {
+            egui::TopBottomPanel::bottom("virtual_keyboard")
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.add_space(10.0);
+                    crate::keyboard::render_keyboard(ui, &mut state.app_name);
+                    
+                    // Tombol khusus tutup keyboard
+                    if ui.button("CLOSE").clicked() {
+                        state.show_kb = false;
+                    }
+                    ui.add_space(10.0);
+                });
         }
     }
 }
