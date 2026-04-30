@@ -47,15 +47,19 @@ impl eframe::App for OdfizApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let mut state = self.state.lock().unwrap();
 
-        // Panel Utama
+        // 1. Tambahkan Top Panel transparan sebagai "Safe Area" status bar
+        egui::TopBottomPanel::top("status_bar_spacer")
+            .frame(egui::Frame::none().inner_margin(egui::Margin::symmetric(0.0, 15.0))) // 30px total height
+            .show(ctx, |_| { /* Kosong, cuma buat geser konten bawah */ });
+
+        // 2. Panel Utama sekarang akan mulai di bawah spacer tadi
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
-                ui.add_space(20.0);
+                ui.add_space(10.0);
                 ui.heading("VUZT NATIVE UI");
                 ui.add_space(10.0);
                 
                 ui.label("Klik teks di bawah untuk edit:");
-                // Gunakan selectable_label sebagai pemicu keyboard
                 let response = ui.add(egui::SelectableLabel::new(state.show_kb, format!("> {}", state.app_name)));
                 if response.clicked() {
                     state.show_kb = !state.show_kb;
@@ -66,15 +70,13 @@ impl eframe::App for OdfizApp {
             });
         });
 
-        // Panel Keyboard (Nempel di bawah)
+        // 3. Panel Keyboard
         if state.show_kb {
             egui::TopBottomPanel::bottom("virtual_keyboard")
                 .resizable(false)
                 .show(ctx, |ui| {
                     ui.add_space(10.0);
                     crate::keyboard::render_keyboard(ui, &mut state.app_name);
-                    
-                    // Tombol khusus tutup keyboard
                     if ui.button("CLOSE").clicked() {
                         state.show_kb = false;
                     }
