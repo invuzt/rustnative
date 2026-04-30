@@ -19,10 +19,8 @@ jobs:
     - name: Rust Cache
       uses: Swatinem/rust-cache@v2
 
-    - name: Install cargo-apk & UPX
-      run: |
-        cargo install cargo-apk
-        sudo apt-get update && sudo apt-get install upx-ucl -y
+    - name: Install cargo-apk
+      run: cargo install cargo-apk
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
@@ -32,18 +30,11 @@ jobs:
         ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-30" "ndk;26.1.10909125"
         echo "ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/26.1.10909125" >> $GITHUB_ENV
 
-    - name: Generate Keystore (Di Awal)
+    - name: Generate Keystore
       run: |
         keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
 
-    - name: Pre-build Compile (Agar bisa di-UPX)
-      run: cargo build --release --target aarch64-linux-android
-
-    - name: Apply UPX to Shared Library
-      run: |
-        find target/aarch64-linux-android/release -name "*.so" -exec upx --best {} +
-
-    - name: Build Final APK
+    - name: Build APK (Release Mode)
       run: cargo apk build --release
 
     - name: Upload APK
