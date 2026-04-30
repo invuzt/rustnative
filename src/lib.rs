@@ -1,6 +1,7 @@
 #![cfg(target_os = "android")]
 mod app_logic;
 mod keyboard;
+mod css; // Import CSS module
 
 use eframe::egui;
 use std::sync::{Arc, Mutex};
@@ -29,13 +30,15 @@ fn android_main(app: AndroidApp) {
         "Vuzt",
         options,
         Box::new(move |cc| {
+            // Panggil fungsi CSS di sini
+            crate::css::apply_custom_style(&cc.egui_ctx);
+
             let mut fonts = egui::FontDefinitions::default();
             fonts.font_data.insert(
                 "custom_font".to_owned(),
                 egui::FontData::from_static(include_bytes!("../assets/font.ttf")),
             );
             fonts.families.get_mut(&egui::FontFamily::Proportional).unwrap().insert(0, "custom_font".to_owned());
-            fonts.families.get_mut(&egui::FontFamily::Monospace).unwrap().push("custom_font".to_owned());
             cc.egui_ctx.set_fonts(fonts);
 
             Box::new(OdfizApp { state: state_inner }) as Box<dyn eframe::App>
@@ -47,30 +50,29 @@ impl eframe::App for OdfizApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let mut state = self.state.lock().unwrap();
 
-        // 1. Tambahkan Top Panel transparan sebagai "Safe Area" status bar
         egui::TopBottomPanel::top("status_bar_spacer")
-            .frame(egui::Frame::none().inner_margin(egui::Margin::symmetric(0.0, 15.0))) // 30px total height
-            .show(ctx, |_| { /* Kosong, cuma buat geser konten bawah */ });
+            .frame(egui::Frame::none().inner_margin(egui::Margin::symmetric(0.0, 15.0)))
+            .show(ctx, |_| {});
 
-        // 2. Panel Utama sekarang akan mulai di bawah spacer tadi
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered(|ui| {
                 ui.add_space(10.0);
-                ui.heading("VUZT NATIVE UI");
-                ui.add_space(10.0);
+                ui.heading("VUZT NATIVE UI"); // Ini pakai Heading style (24.0)
                 
-                ui.label("Klik teks di bawah untuk edit:");
-                let response = ui.add(egui::SelectableLabel::new(state.show_kb, format!("> {}", state.app_name)));
+                ui.label("Input Teks:");
+                let response = ui.add(egui::SelectableLabel::new(
+                    state.show_kb, 
+                    format!(" > {} ", state.app_name)
+                ));
                 if response.clicked() {
                     state.show_kb = !state.show_kb;
                 }
-                
-                ui.add_space(20.0);
-                ui.label(format!("Status: {}", if state.show_kb { "Keyboard Aktif" } else { "Keyboard Sembunyi" }));
+
+                ui.add_space(10.0);
+                ui.add(egui::Slider::new(&mut 50, 0..=100).text("Slider Test"));
             });
         });
 
-        // 3. Panel Keyboard
         if state.show_kb {
             egui::TopBottomPanel::bottom("virtual_keyboard")
                 .resizable(false)
